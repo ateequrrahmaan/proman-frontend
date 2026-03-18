@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Building2, Loader2, ArrowRight, Users } from "lucide-react";
+import { Building2, Loader2, ArrowRight, Users, Zap, CheckCircle2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -19,7 +19,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 import api from "@/lib/api/client";
 import { useAuthStore } from "@/store/authStore";
 
@@ -36,9 +36,7 @@ export default function OnboardingPage() {
 
   const form = useForm<CreateOrgValues>({
     resolver: zodResolver(createOrgSchema),
-    defaultValues: {
-      name: "",
-    },
+    defaultValues: { name: "" },
   });
 
   const createOrgMutation = useMutation({
@@ -47,8 +45,7 @@ export default function OnboardingPage() {
       return response.data;
     },
     onSuccess: (data) => {
-      toast.success("Organization created successfully!");
-      // data is { success: true, data: { organization, user }, message: "" }
+      toast.success("Organization created! Welcome aboard 🎉");
       if (data.data?.user) {
         updateUser({
           organizationId: data.data.user.organizationId,
@@ -67,97 +64,139 @@ export default function OnboardingPage() {
     createOrgMutation.mutate(data);
   }
 
-  // If user already has an org, redirect to dashboard
   if (user?.organizationId) {
     router.push("/dashboard");
     return null;
   }
 
   return (
-    <div className="flex h-screen w-full items-center justify-center bg-muted/40 p-4">
-      <div className="w-full max-w-md space-y-6">
+    <div className="relative flex h-screen w-full items-center justify-center overflow-hidden bg-background p-4">
+      {/* Animated gradient orbs */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -left-40 h-96 w-96 rounded-full bg-indigo-500/15 blur-3xl animate-blob" />
+        <div className="absolute top-1/2 -right-32 h-80 w-80 rounded-full bg-violet-500/10 blur-3xl animate-blob animation-delay-2000" />
+        <div className="absolute -bottom-32 left-1/3 h-72 w-72 rounded-full bg-purple-500/10 blur-3xl animate-blob animation-delay-4000" />
+      </div>
+
+      {/* Step progress */}
+      <div className="absolute top-6 left-1/2 -translate-x-1/2 flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
+          <div className="h-2 w-2 rounded-full bg-indigo-500" />
+          <div className={cn("h-8 w-px bg-border")} />
+          <div className={cn(
+            "h-2 w-2 rounded-full transition-all duration-300",
+            view === "create" ? "bg-indigo-500" : "bg-muted-foreground/30"
+          )} />
+        </div>
+        <span className="ml-2 text-xs text-muted-foreground">
+          {view === "choice" ? "Step 1 of 2 — Choose path" : "Step 2 of 2 — Create org"}
+        </span>
+      </div>
+
+      <div className="relative z-10 w-full max-w-md space-y-6">
+        {/* Header */}
         <div className="text-center space-y-2">
-          <h1 className="text-3xl font-bold tracking-tight">Welcome, {user?.name || "User"}!</h1>
-          <p className="text-muted-foreground">Let&apos;s get you set up with an organization.</p>
+          <div className="flex justify-center mb-4">
+            <div className="h-12 w-12 rounded-2xl brand-gradient flex items-center justify-center shadow-lg glow-primary">
+              <Zap className="h-6 w-6 text-white" />
+            </div>
+          </div>
+          <h1 className="text-3xl font-bold tracking-tight">
+            Welcome, {user?.name?.split(" ")[0] || "there"}!
+          </h1>
+          <p className="text-muted-foreground">
+            {view === "choice"
+              ? "Let's get your workspace set up."
+              : "Give your organization a name."}
+          </p>
         </div>
 
         {view === "choice" && (
           <div className="grid gap-4">
-            <Card className="cursor-pointer hover:border-primary transition-colors" onClick={() => setView("create")}>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-xl">
-                  <Building2 className="h-5 w-5 text-primary" />
-                  Create Organization
-                </CardTitle>
-                <CardDescription>
-                  Start a new organization and become the admin.
-                </CardDescription>
-              </CardHeader>
-              <CardFooter>
-                 <Button variant="ghost" className="w-full justify-between">
-                    Get Started <ArrowRight className="h-4 w-4" />
-                 </Button>
-              </CardFooter>
-            </Card>
-
-            <Card className="border-primary/20">
-              <CardHeader>
-                <CardTitle className="text-xl flex items-center gap-2">
-                  <Users className="h-5 w-5 text-primary" />
-                  Join Organization
-                </CardTitle>
-                <CardDescription className="text-base text-muted-foreground">
-                  To join an existing organization, please click on the invite link sent to your email by your administrator.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="p-4 bg-muted/50 rounded-lg border italic text-sm text-muted-foreground">
-                  Note: Tell your admin to send you an invite link to your registered email ({user?.email}).
+            {/* Create org card */}
+            <button
+              onClick={() => setView("create")}
+              className="group w-full text-left p-5 rounded-2xl border bg-card hover:border-indigo-400 hover:shadow-lg hover:shadow-indigo-500/10 transition-all duration-200"
+            >
+              <div className="flex items-start gap-4">
+                <div className="h-10 w-10 rounded-xl bg-indigo-100 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-300 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                  <Building2 className="h-5 w-5" />
                 </div>
-              </CardContent>
-            </Card>
+                <div className="flex-1 space-y-1">
+                  <h3 className="font-semibold text-foreground">Create Organization</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Start fresh as an admin. Invite your team afterward.
+                  </p>
+                </div>
+                <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-indigo-600 group-hover:translate-x-1 transition-all mt-1 shrink-0" />
+              </div>
+            </button>
+
+            {/* Join org card */}
+            <div className="w-full text-left p-5 rounded-2xl border bg-card/50">
+              <div className="flex items-start gap-4">
+                <div className="h-10 w-10 rounded-xl bg-violet-100 dark:bg-violet-950 text-violet-600 dark:text-violet-300 flex items-center justify-center shrink-0">
+                  <Users className="h-5 w-5" />
+                </div>
+                <div className="flex-1 space-y-2">
+                  <h3 className="font-semibold text-foreground">Join Organization</h3>
+                  <p className="text-sm text-muted-foreground">
+                    If you have an invite link, click it from your email to join automatically.
+                  </p>
+                  <div className="flex items-start gap-2 p-3 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800">
+                    <CheckCircle2 className="h-4 w-4 text-amber-500 mt-0.5 shrink-0" />
+                    <p className="text-xs text-amber-700 dark:text-amber-300">
+                      Ask your admin to invite <span className="font-semibold">{user?.email}</span>
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
         {view === "create" && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Create Organization</CardTitle>
-              <CardDescription>
-                Enter the name of your new organization.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                  <FormField
-                    control={form.control}
-                    name="name"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Organization Name</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Acme Corp" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <div className="flex gap-2 w-full">
-                     <Button type="button" variant="outline" className="flex-1" onClick={() => setView("choice")}>
-                        Back
-                     </Button>
-                     <Button type="submit" className="flex-1" disabled={createOrgMutation.isPending}>
-                        {createOrgMutation.isPending && (
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        )}
-                        Create
-                     </Button>
-                  </div>
-                </form>
-              </Form>
-            </CardContent>
-          </Card>
+          <div className="rounded-2xl border bg-card p-6 shadow-sm space-y-5">
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm font-medium">Organization Name</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Acme Corp"
+                          className="h-11 rounded-xl bg-muted/50 border-border/60 focus-visible:ring-indigo-500/30 focus-visible:border-indigo-400"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <div className="flex gap-3">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="flex-1 h-11 rounded-xl"
+                    onClick={() => setView("choice")}
+                  >
+                    Back
+                  </Button>
+                  <Button
+                    type="submit"
+                    className="flex-1 h-11 rounded-xl brand-gradient text-white glow-primary hover:opacity-90 transition-all"
+                    disabled={createOrgMutation.isPending}
+                  >
+                    {createOrgMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    Create
+                  </Button>
+                </div>
+              </form>
+            </Form>
+          </div>
         )}
       </div>
     </div>

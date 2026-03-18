@@ -4,53 +4,73 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
+    /* Brand — Indigo/Violet */
+    --background: 220 20% 98%;
+    --foreground: 224 71% 4%;
     --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
+    --card-foreground: 224 71% 4%;
     --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
-    --primary: 240 5.9% 10%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 240 10% 3.9%;
-    --chart-1: 12 76% 61%;
+    --popover-foreground: 224 71% 4%;
+    --primary: 243 75% 59%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 240 10% 94%;
+    --secondary-foreground: 243 75% 40%;
+    --muted: 220 14% 94%;
+    --muted-foreground: 220 9% 46%;
+    --accent: 250 100% 96%;
+    --accent-foreground: 243 75% 50%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 13% 89%;
+    --input: 220 13% 89%;
+    --ring: 243 75% 59%;
+    --radius: 0.625rem;
+
+    /* Brand tokens */
+    --brand-from: 243 75% 59%;
+    --brand-to: 280 85% 65%;
+    --sidebar-bg: 230 40% 98%;
+    --sidebar-border: 220 13% 91%;
+    --glow-primary: 0 0 24px hsl(243 75% 59% / 0.25);
+    --glow-card: 0 4px 32px hsl(243 75% 59% / 0.08);
+
+    /* Charts */
+    --chart-1: 243 75% 59%;
     --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
-    --radius: 0.5rem;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
   }
+
   .dark {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 240 5.9% 10%;
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 240 4.9% 83.9%;
-    --chart-1: 220 70% 50%;
+    --background: 226 32% 8%;
+    --foreground: 210 20% 97%;
+    --card: 224 32% 12%;
+    --card-foreground: 210 20% 97%;
+    --popover: 224 32% 11%;
+    --popover-foreground: 210 20% 97%;
+    --primary: 243 75% 62%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 224 25% 18%;
+    --secondary-foreground: 210 20% 90%;
+    --muted: 224 25% 16%;
+    --muted-foreground: 220 10% 56%;
+    --accent: 243 40% 20%;
+    --accent-foreground: 243 75% 80%;
+    --destructive: 0 62% 40%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 224 20% 20%;
+    --input: 224 20% 20%;
+    --ring: 243 75% 62%;
+
+    /* Brand tokens — dark */
+    --sidebar-bg: 226 35% 10%;
+    --sidebar-border: 224 20% 16%;
+    --glow-primary: 0 0 32px hsl(243 75% 62% / 0.35);
+    --glow-card: 0 4px 32px hsl(243 75% 62% / 0.12);
+
+    /* Charts */
+    --chart-1: 243 75% 62%;
     --chart-2: 160 60% 45%;
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
@@ -63,6 +83,36 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "cv11", "ss01";
+    -webkit-font-smoothing: antialiased;
   }
 }
+
+@layer utilities {
+  .brand-gradient {
+    background: linear-gradient(135deg, hsl(var(--brand-from)), hsl(var(--brand-to)));
+  }
+  .glow-primary {
+    box-shadow: var(--glow-primary);
+  }
+  .glow-card {
+    box-shadow: var(--glow-card);
+  }
+  .sidebar-bg {
+    background-color: hsl(var(--sidebar-bg));
+    border-color: hsl(var(--sidebar-border));
+  }
+}
+
+/* Smooth animated gradient blob */
+@keyframes blob-drift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(30px, -20px) scale(1.05); }
+  66% { transform: translate(-15px, 15px) scale(0.95); }
+}
+.animate-blob {
+  animation: blob-drift 8s ease-in-out infinite;
+}
+.animation-delay-2000 { animation-delay: 2s; }
+.animation-delay-4000 { animation-delay: 4s; }
