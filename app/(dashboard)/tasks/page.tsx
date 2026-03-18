@@ -37,7 +37,7 @@ export default function TasksPage() {
       const response = await api.get("/tasks", {
         params: { search }
       });
-      return response.data;
+      return response.data.data;
     },
   });
 
@@ -93,15 +93,15 @@ export default function TasksPage() {
                )} />
                <h3 className="font-semibold">{column.title}</h3>
                <Badge variant="secondary" className="ml-auto">
-                 {tasks?.filter((t: any) => t.status === column.id).length || 0}
+                 {Array.isArray(tasks) ? tasks.filter((t: any) => t.status === column.id).length : 0}
                </Badge>
             </div>
 
             <div className="space-y-3">
               {isLoading ? (
                 Array(2).fill(0).map((_, i) => <Skeleton key={i} className="h-24 w-full" />)
-              ) : (
-                tasks?.filter((t: any) => t.status === column.id).map((task: any) => (
+              ) : Array.isArray(tasks) ? (
+                tasks.filter((t: any) => t.status === column.id).map((task: any) => (
                   <Card key={task._id} className="cursor-grab active:cursor-grabbing hover:border-primary/50 transition-colors">
                     <CardHeader className="p-4 pb-2">
                        <div className="flex items-start justify-between gap-2">
@@ -129,7 +129,7 @@ export default function TasksPage() {
                     </CardContent>
                   </Card>
                 ))
-              )}
+              ) : null}
             </div>
           </div>
         ))}
