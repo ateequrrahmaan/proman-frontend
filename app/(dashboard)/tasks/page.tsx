@@ -37,7 +37,7 @@ export default function TasksPage() {
       const response = await api.get("/tasks", {
         params: { search }
       });
-      return response.data.data;
+      return response.data;
     },
   });
 
