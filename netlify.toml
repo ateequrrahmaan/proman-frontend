@@ -1,5 +1,5 @@
 [build]
-  publish = "out"
+  publish = ".next"
   command = "npm run build"
 
 [build.environment]
@@ -10,13 +10,6 @@
   to = "https://projectmanage-backend-h3cj.onrender.com/api/:splat"
   status = 200
 
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
-
-[context.production]
-  command = "npm run build"
-
-[context.deploy-preview]
-  command = "npm run build"
+# Next.js plugin configuration
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
