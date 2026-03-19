@@ -9,14 +9,18 @@ import {
   Users, 
   Zap,
   BarChart3,
-  Shield
+  Shield,
+  Sun,
+  Moon
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { useTheme } from "next-themes";
 import { useAuthStore } from "@/store/authStore";
 
 export default function LandingPage() {
   const { token } = useAuthStore();
+  const { theme, setTheme } = useTheme();
   return (
     <div className="flex flex-col min-h-screen bg-background">
       {/* Navigation */}
@@ -28,6 +32,17 @@ export default function LandingPage() {
           <span className="text-xl font-bold tracking-tight">ProMan</span>
         </Link>
         <div className="flex items-center gap-4">
+          {/* Theme toggle */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="rounded-full hover:bg-indigo-50 dark:hover:bg-indigo-950/40 transition-colors"
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+          >
+            <Sun className="h-4.5 w-4.5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+            <Moon className="absolute h-4.5 w-4.5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+            <span className="sr-only">Toggle theme</span>
+          </Button>
           {token ? (
             <Button asChild>
               <Link href="/dashboard">Go to Dashboard</Link>
@@ -155,7 +170,7 @@ export default function LandingPage() {
                   Join thousands of teams who trust ProMan to deliver excellence every single day.
                 </p>
                 <Button size="lg" variant="secondary" className="h-12 px-8 text-base font-semibold" asChild>
-                   <Link href="/register text-primary">Get Started Now</Link>
+                   <Link href="/register">Get Started Now</Link>
                 </Button>
             </div>
         </section>
