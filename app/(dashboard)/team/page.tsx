@@ -102,6 +102,25 @@ export default function TeamPage() {
     },
   });
 
+  const deleteUserMutation = useMutation({
+    mutationFn: async (userId: string) => {
+      await api.delete(`/users/${userId}`);
+    },
+    onSuccess: () => {
+      toast.success("Member removed successfully");
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || "Failed to remove member");
+    },
+  });
+
+  const handleRemoveUser = (userId: string, userName: string) => {
+    if (window.confirm(`Are you sure you want to remove ${userName} from the organization?`)) {
+      deleteUserMutation.mutate(userId);
+    }
+  };
+
   function onInvite(values: InviteFormValues) {
     inviteMutation.mutate(values);
   }
@@ -239,7 +258,13 @@ export default function TeamPage() {
                         </div>
                      </div>
                      {isAdmin && u._id !== currentUser?.id && (
-                       <Button variant="ghost" size="icon" className="opacity-0 group-hover:opacity-100 transition-opacity">
+                       <Button 
+                         variant="ghost" 
+                         size="icon" 
+                         className="opacity-0 group-hover:opacity-100 transition-opacity"
+                         onClick={() => handleRemoveUser(u._id, u.name)}
+                         disabled={deleteUserMutation.isPending}
+                       >
                           <Trash2 className="h-4 w-4 text-destructive" />
                        </Button>
                      )}

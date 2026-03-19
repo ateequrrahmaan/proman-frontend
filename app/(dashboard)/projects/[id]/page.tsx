@@ -101,6 +101,26 @@ export default function ProjectDetailsPage({ params }: { params: { id: string } 
     }
   });
 
+  const removeMemberMutation = useMutation({
+    mutationFn: async (memberId: string) => {
+      await api.patch(`/projects/${projectId}/remove-member`, { memberId });
+    },
+    onSuccess: () => {
+      toast.success("Member removed from project");
+      queryClient.invalidateQueries({ queryKey: ["project", projectId] });
+      queryClient.invalidateQueries({ queryKey: ["project-tasks", projectId] });
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || "Failed to remove member");
+    }
+  });
+
+  const handleRemoveProjectMember = (memberId: string, memberName: string) => {
+    if (window.confirm(`Are you sure you want to remove ${memberName} from this project?`)) {
+      removeMemberMutation.mutate(memberId);
+    }
+  };
+
   const { data: tasks, isLoading: tasksLoading } = useQuery({
     queryKey: ["project-tasks", projectId],
     queryFn: async () => {
@@ -123,6 +143,25 @@ export default function ProjectDetailsPage({ params }: { params: { id: string } 
       toast.error(error.response?.data?.message || "Failed to update status");
     }
   });
+
+  const deleteTaskMutation = useMutation({
+    mutationFn: async (taskId: string) => {
+      await api.delete(`/tasks/${taskId}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["project-tasks", projectId] });
+      toast.success("Task deleted successfully");
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || "Failed to delete task");
+    }
+  });
+
+  const handleDeleteTask = (taskId: string) => {
+    if (window.confirm("Are you sure you want to delete this task?")) {
+      deleteTaskMutation.mutate(taskId);
+    }
+  };
 
   if (projectLoading) {
     return (
@@ -280,6 +319,13 @@ export default function ProjectDetailsPage({ params }: { params: { id: string } 
                                 <DropdownMenuItem onClick={() => updateStatusMutation.mutate({ taskId: task._id, status: 'done' })}>
                                    Done
                                 </DropdownMenuItem>
+                                <DropdownMenuItem 
+                                  onClick={() => handleDeleteTask(task._id)}
+                                  className="text-destructive focus:text-destructive"
+                                >
+                                   <Trash2 className="mr-2 h-4 w-4" />
+                                   Delete Task
+                                </DropdownMenuItem>
                              </DropdownMenuContent>
                           </DropdownMenu>
 
@@ -357,8 +403,11 @@ export default function ProjectDetailsPage({ params }: { params: { id: string } 
                                        </Button>
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent align="end">
-                                       <DropdownMenuItem className="text-destructive">
-                                          <Trash2 className="mr-2 h-4 w-4" /> Remove
+                                       <DropdownMenuItem 
+                                         onClick={() => handleRemoveProjectMember(member.user?._id, member.user?.name)}
+                                         className="text-destructive focus:text-destructive"
+                                       >
+                                          <Trash2 className="mr-2 h-4 w-4" /> Remove from Project
                                        </DropdownMenuItem>
                                     </DropdownMenuContent>
                                  </DropdownMenu>

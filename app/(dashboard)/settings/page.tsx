@@ -1,7 +1,7 @@
 "use client";
 
 import { useAuthStore } from "@/store/authStore";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import api from "@/lib/api/client";
 import { 
   Card, 
@@ -27,6 +27,7 @@ import {
 import { useTheme } from "next-themes";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "../../../components/ui/separator";
+import { toast } from "sonner";
 
 export default function SettingsPage() {
   const { user, logout } = useAuthStore();
@@ -40,6 +41,30 @@ export default function SettingsPage() {
     },
     enabled: !!user,
   });
+
+  const deleteAccountMutation = useMutation({
+    mutationFn: async () => {
+      await api.delete("/users/delete-account");
+    },
+    onSuccess: () => {
+      toast.success("Account deleted successfully");
+      logout();
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || "Failed to delete account");
+    },
+  });
+
+  const handleDeleteAccount = () => {
+    const confirmMessage = `Are you sure you want to delete your account?\n\nThis action will:\n- Permanently delete your account\n- Remove all your data\n- Remove you from all projects\n- This cannot be undone\n\nType "DELETE" to confirm:`;
+    
+    const confirmation = prompt(confirmMessage);
+    if (confirmation === "DELETE") {
+      deleteAccountMutation.mutate();
+    } else if (confirmation !== null) {
+      toast.error("Confirmation text does not match. Please type 'DELETE' to confirm.");
+    }
+  };
 
   if (!user) return null;
 
@@ -115,7 +140,14 @@ export default function SettingsPage() {
               <p className="text-sm text-muted-foreground mb-4">
                 Deleting your account will remove all your data and access. This cannot be undone.
               </p>
-              <Button variant="destructive" className="font-semibold px-8">Delete Account</Button>
+              <Button 
+                variant="destructive" 
+                className="font-semibold px-8"
+                onClick={handleDeleteAccount}
+                disabled={deleteAccountMutation.isPending}
+              >
+                {deleteAccountMutation.isPending ? "Deleting..." : "Delete Account"}
+              </Button>
             </CardContent>
           </Card>
         </TabsContent>
